@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# bash file for the work
+#This is a bash script for displaying subdomain informations
+display_info ()
+{
+    domain="$1"
+    subdomain="$2"
+    dig "$subdomain.$domain" | awk '/ANSWER SECTION:/{getline; printf "The subdomain %s is a %s record and points to %s\n", var, $4, $5}' var="$subdomain"
+}
 
-
-if [ $# == 2 ]; then
-    domain=$1
-    subdomain=$2
-    SUB_DOMAINS=$subdomain
-else
-    domain=$1
-    SUB_DOMAINS=("www" "lb-01" "web-01" "web-02")
-fi
-
-for sub in ${SUB_DOMAINS[@]}; do
-    record_type="$(dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $4}')"
-    destination=$(dig +short "$sub.$domain" | awk '{print $1}')
-    echo "The subdomain $sub is a $record_type record and points to $destination"
+for subdomain in "www" "lb-01" "web-01" "web-02"
+do
+    if [ -z "$2" ] || [ "$2" == "$subdomain" ] ;
+    then
+	display_info "$1" "$subdomain"
+    fi
 done
